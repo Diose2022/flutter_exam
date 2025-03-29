@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "213281736631",
+    "project_id": "examenflutter-2957f",
+    "storage_bucket": "examenflutter-2957f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:213281736631:android:0fbd96b6715dd137a78a32",
+        "android_client_info": {
+          "package_name": "com.supinfo.sn.examen_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwMoILtYabdWbvgRSDeS8hqan99Vne4nk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
