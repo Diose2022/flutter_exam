@@ -1,9 +1,12 @@
 
 import 'package:examen_flutter/common/constants_colors.dart';
 import 'package:examen_flutter/common/views/add_member_screen.dart';
+import 'package:examen_flutter/common/views/admin_dashboard.dart';
 import 'package:examen_flutter/common/views/auth_screen.dart';
 import 'package:examen_flutter/common/views/create_project_screen.dart';
+import 'package:examen_flutter/common/views/kanban_screen.dart';
 import 'package:examen_flutter/common/views/main_screen.dart';
+import 'package:examen_flutter/common/views/project_statistic.dart';
 import 'package:examen_flutter/common/views/task_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +38,7 @@ class MyApp extends StatelessWidget {
       ),
 
       themeMode: ThemeMode.system,
-      home: TaskScreen()
+      home: AdminDashboardScreen()
     );
   }
 }

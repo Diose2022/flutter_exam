@@ -8,6 +8,7 @@ class KanbanBoardScreen extends StatelessWidget {
   Stream<List<Map<String, dynamic>>> _loadProjects(String status) {
     return FirebaseFirestore.instance
         .collection('projects')
+        .where('status', isEqualTo: status)
         .snapshots()
         .map((snapshot) => snapshot.docs.map((doc) {
       final data = doc.data();
@@ -22,94 +23,75 @@ class KanbanBoardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Tableau Kanban"),
-        centerTitle: true,
-        backgroundColor: Colors.blueAccent,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return DefaultTabController(
+      length: 3, // Nombre d'onglets
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Tableau Kanban"),
+          centerTitle: true,
+          backgroundColor: Colors.blueAccent,
+          bottom: TabBar(
+            tabs: [
+              Tab(text: "En attente"),
+              Tab(text: "En cours"),
+              Tab(text: "Terminé"),
+            ],
+          ),
+        ),
+        body: TabBarView(
           children: [
-            _buildKanbanColumn(context, "En attente", Colors.orangeAccent),
-            _buildKanbanColumn(context, "En cours", Colors.blue),
-            _buildKanbanColumn(context, "Terminé", Colors.green),
+            _buildProjectListView(context, "En attente", Colors.orangeAccent),
+            _buildProjectListView(context, "En cours", Colors.blue),
+            _buildProjectListView(context, "Terminé", Colors.green),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildKanbanColumn(BuildContext context, String status, Color color) {
-    return Expanded(
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Column(
-          children: [
-            Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+  Widget _buildProjectListView(BuildContext context, String status, Color color) {
+    return StreamBuilder<List<Map<String, dynamic>>>(
+      stream: _loadProjects(status),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text("Aucun projet"));
+        }
+
+        return ListView(
+          padding: EdgeInsets.all(8),
+          children: snapshot.data!.map((project) {
+            return Card(
+              elevation: 3,
+              margin: EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Center(
-                child: Text(
-                  status,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+              child: ListTile(
+                contentPadding: EdgeInsets.all(12),
+                title: Text(
+                  project["title"],
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(project["description"]),
+                trailing: IconButton(
+                  icon: Icon(Icons.person_add, color: Colors.blue),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddMemberScreen(projectId: project["id"]),
+                      ),
+                    );
+                  },
                 ),
               ),
-            ),
-            Expanded(
-              child: StreamBuilder<List<Map<String, dynamic>>>(
-                stream: _loadProjects(status),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text("Aucun projet"));
-                  }
-
-                  return ListView(
-                    padding: EdgeInsets.all(8),
-                    children: snapshot.data!.map((project) {
-                      return Card(
-                        elevation: 3,
-                        margin: EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: ListTile(
-                          contentPadding: EdgeInsets.all(12),
-                          title: Text(
-                            project["title"],
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Text(project["description"]),
-                          trailing: IconButton(
-                            icon: Icon(Icons.person_add, color: Colors.blue),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => AddMemberScreen(projectId: project["id"]),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+            );
+          }).toList(),
+        );
+      },
     );
   }
 }
